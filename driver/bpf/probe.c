@@ -178,6 +178,8 @@ BPF_PROBE("sched/", sched_switch, sched_switch_args)
 	return 0;
 }
 
+//mine
+// probe.c + 参数：ctx
 static __always_inline int bpf_page_fault(struct page_fault_args *ctx)
 {
 	struct sysdig_bpf_settings *settings;

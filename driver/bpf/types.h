@@ -289,3 +289,26 @@ struct sysdig_bpf_per_cpu_state {
 } __attribute__((packed));
 
 #endif
+
+#ifndef SOCK_ARGS
+#define SOCK_ARGS
+//#pragma once
+struct sock_args {
+    //__u64 pad;
+	unsigned short common_type;
+	unsigned char common_flags;
+	unsigned char common_preempt_count;
+	int common_pid;
+    const void *skaddr;
+    int oldstate;
+    int newstate;
+    __u16 sport;
+    __u16 dport;
+    __u16 family;
+    __u8 protocol;
+    __u8 saddr[4];
+    __u8 daddr[4];
+    __u8 saddr_v6[16];
+    __u8 daddr_v6[16];
+};
+#endif
