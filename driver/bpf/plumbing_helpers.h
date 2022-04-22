@@ -8,7 +8,7 @@ or GPL2.txt for full copies of the license.
 */
 #ifndef __PLUMBING_HELPERS_H
 #define __PLUMBING_HELPERS_H
-
+#define BPF_DEBUG
 #include <linux/ptrace.h>
 #include <linux/version.h>
 #include <linux/fdtable.h>

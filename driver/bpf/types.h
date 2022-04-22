@@ -30,12 +30,14 @@ or GPL2.txt for full copies of the license.
 #define KRET_NAME "kretprobe/"
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sys_enter_args {
+struct sys_enter_args
+{
 	unsigned long regs;
 	unsigned long id;
 };
 #else
-struct sys_enter_args {
+struct sys_enter_args
+{
 	__u64 pad;
 	long id;
 	unsigned long args[6];
@@ -43,12 +45,14 @@ struct sys_enter_args {
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sys_exit_args {
+struct sys_exit_args
+{
 	unsigned long regs;
 	unsigned long ret;
 };
 #else
-struct sys_exit_args {
+struct sys_exit_args
+{
 	__u64 pad;
 	long id;
 	long ret;
@@ -56,11 +60,13 @@ struct sys_exit_args {
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sched_process_exit_args {
+struct sched_process_exit_args
+{
 	unsigned long p;
 };
 #else
-struct sched_process_exit_args {
+struct sched_process_exit_args
+{
 	__u64 pad;
 	char comm[16];
 	pid_t pid;
@@ -69,13 +75,15 @@ struct sched_process_exit_args {
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sched_switch_args {
+struct sched_switch_args
+{
 	unsigned long preempt;
 	unsigned long prev;
 	unsigned long next;
 };
 #else
-struct sched_switch_args {
+struct sched_switch_args
+{
 	__u64 pad;
 	char prev_comm[TASK_COMM_LEN];
 	pid_t prev_pid;
@@ -88,7 +96,8 @@ struct sched_switch_args {
 #endif
 
 #ifndef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sched_process_fork_args {
+struct sched_process_fork_args
+{
 	__u64 pad;
 	char parent_comm[TASK_COMM_LEN];
 	pid_t parent_pid;
@@ -98,13 +107,15 @@ struct sched_process_fork_args {
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct page_fault_args {
+struct page_fault_args
+{
 	unsigned long address;
 	unsigned long regs;
 	unsigned long error_code;
 };
 #else
-struct page_fault_args {
+struct page_fault_args
+{
 	__u64 pad;
 	unsigned long address;
 	unsigned long ip;
@@ -113,13 +124,15 @@ struct page_fault_args {
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct signal_deliver_args {
+struct signal_deliver_args
+{
 	unsigned long sig;
 	unsigned long info;
 	unsigned long ka;
 };
 #else
-struct signal_deliver_args {
+struct signal_deliver_args
+{
 	__u64 pad;
 	int sig;
 	int errno;
@@ -130,46 +143,51 @@ struct signal_deliver_args {
 #endif
 
 #ifndef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct sys_stash_args {
+struct sys_stash_args
+{
 	unsigned long args[6];
 };
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct net_dev_start_xmit_args {
+struct net_dev_start_xmit_args
+{
 	struct sk_buff *skb;
 	struct net_device *dev;
 };
 #else
-struct net_dev_start_xmit_args {
-	__u64 			pad;
-	u32 			__data_loc_name;
-	u16				queue_mapping;
-	const void * 	skbaddr;
-	bool			vlan_tagged;
-	u16				vlan_proto;
-	u16				vlan_tci;
-	u16				protocol;
-	u8				ip_summed;
-	unsigned int	len;
-	unsigned int	data_len;
-	int				network_offset;
-	bool			transport_offset_valid;
-	int				transport_offset;
-	u8				tx_flags;
-	u16				gso_size;
-	u16				gso_segs;
-	u16				gso_type;
-	char 			__data[0];
+struct net_dev_start_xmit_args
+{
+	__u64 pad;
+	u32 __data_loc_name;
+	u16 queue_mapping;
+	const void *skbaddr;
+	bool vlan_tagged;
+	u16 vlan_proto;
+	u16 vlan_tci;
+	u16 protocol;
+	u8 ip_summed;
+	unsigned int len;
+	unsigned int data_len;
+	int network_offset;
+	bool transport_offset_valid;
+	int transport_offset;
+	u8 tx_flags;
+	u16 gso_size;
+	u16 gso_segs;
+	u16 gso_type;
+	char __data[0];
 };
 #endif
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-struct netif_receive_skb_args {
+struct netif_receive_skb_args
+{
 	struct sk_buff *skb;
 };
 #else
-struct netif_receive_skb_args {
+struct netif_receive_skb_args
+{
 	__u64 pad;
 	void *skbaddr;
 	unsigned int len;
@@ -178,7 +196,8 @@ struct netif_receive_skb_args {
 };
 #endif
 
-struct filler_data {
+struct filler_data
+{
 	void *ctx;
 	struct sysdig_bpf_settings *settings;
 	struct sysdig_bpf_per_cpu_state *state;
@@ -193,13 +212,15 @@ struct filler_data {
 	int fd;
 };
 
-struct perf_event_header {
+struct perf_event_header
+{
 	__u32 type;
 	__u16 misc;
 	__u16 size;
 };
 
-struct perf_event_sample {
+struct perf_event_sample
+{
 	struct perf_event_header header;
 	__u32 size;
 	char data[];
@@ -220,11 +241,13 @@ struct perf_event_sample {
 
 #endif /* __KERNEL__ */
 
-struct statistics {
+struct statistics
+{
 	uint64_t last_time;
 };
 
-struct tuple {
+struct tuple
+{
 	__u16 sport;
 	__u16 dport;
 	__u32 saddr;
@@ -233,7 +256,8 @@ struct tuple {
 	__u16 pad;
 };
 
-enum sysdig_map_types {
+enum sysdig_map_types
+{
 	SYSDIG_PERF_MAP = 0,
 	SYSDIG_TAIL_MAP = 1,
 	SYSDIG_SYSCALL_CODE_ROUTING_TABLE = 2,
@@ -250,7 +274,8 @@ enum sysdig_map_types {
 #endif
 };
 
-struct sysdig_bpf_settings {
+struct sysdig_bpf_settings
+{
 	uint64_t boot_time;
 	void *socket_file_ops;
 	uint32_t snaplen;
@@ -269,7 +294,8 @@ struct sysdig_bpf_settings {
 	bool events_mask[PPM_EVENT_MAX];
 } __attribute__((packed));
 
-struct tail_context {
+struct tail_context
+{
 	enum ppm_event_type evt_type;
 	unsigned long long ts;
 	unsigned long curarg;
@@ -278,7 +304,8 @@ struct tail_context {
 	int prev_res;
 } __attribute__((packed));
 
-struct sysdig_bpf_per_cpu_state {
+struct sysdig_bpf_per_cpu_state
+{
 	struct tail_context tail_ctx;
 	unsigned long long n_evts;
 	unsigned long long n_drops_buffer;
@@ -288,4 +315,28 @@ struct sysdig_bpf_per_cpu_state {
 	bool in_use;
 } __attribute__((packed));
 
+#endif
+
+
+
+#ifndef SOCK_ARGS
+#define SOCK_ARGS
+struct sock_args
+{
+	unsigned short common_type;  
+	unsigned char common_flags; 
+	unsigned char common_preempt_count;
+	int common_pid; 
+	const void *skaddr;
+	int oldstate;
+	int newstate;
+	__u16 sport;
+	__u16 dport;
+	__u16 family;
+	__u8 protocol;
+	__u8 saddr[4];
+	__u8 daddr[4];
+	__u8 saddr_v6[16];
+	__u8 daddr_v6[16];
+};
 #endif

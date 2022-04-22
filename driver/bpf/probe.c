@@ -30,22 +30,18 @@ or GPL2.txt for full copies of the license.
 #include <uapi/linux/udp.h>
 
 #ifdef BPF_SUPPORTS_RAW_TRACEPOINTS
-#define BPF_PROBE(prefix, event, type)			\
-__bpf_section(TP_NAME #event)				\
-int bpf_##event(struct type *ctx)
+#define BPF_PROBE(prefix, event, type) \
+	__bpf_section(TP_NAME #event) int bpf_##event(struct type *ctx)
 #else
-#define BPF_PROBE(prefix, event, type)			\
-__bpf_section(TP_NAME prefix #event)			\
-int bpf_##event(struct type *ctx)
+#define BPF_PROBE(prefix, event, type) \
+	__bpf_section(TP_NAME prefix #event) int bpf_##event(struct type *ctx)
 #endif
 
-#define BPF_KPROBE(event)				\
-__bpf_section(KP_NAME #event)				\
-int bpf_kp_##event(struct pt_regs *ctx)
+#define BPF_KPROBE(event) \
+	__bpf_section(KP_NAME #event) int bpf_kp_##event(struct pt_regs *ctx)
 
-#define BPF_KRET_PROBE(event)				\
-__bpf_section(KRET_NAME #event)				\
-int bpf_kret_##event(struct pt_regs *ctx)
+#define BPF_KRET_PROBE(event) \
+	__bpf_section(KRET_NAME #event) int bpf_kret_##event(struct pt_regs *ctx)
 
 BPF_PROBE("raw_syscalls/", sys_enter, sys_enter_args)
 {
@@ -55,28 +51,31 @@ BPF_PROBE("raw_syscalls/", sys_enter, sys_enter_args)
 	int drop_flags;
 	long id;
 
-	if (bpf_in_ia32_syscall())
+	if(bpf_in_ia32_syscall())
 		return 0;
 
 	id = bpf_syscall_get_nr(ctx);
-	if (id < 0 || id >= SYSCALL_TABLE_SIZE)
+	if(id < 0 || id >= SYSCALL_TABLE_SIZE)
 		return 0;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	sc_evt = get_syscall_info(id);
-	if (!sc_evt)
+	if(!sc_evt)
 		return 0;
 
-	if (sc_evt->flags & UF_USED) {
+	if(sc_evt->flags & UF_USED)
+	{
 		evt_type = sc_evt->enter_event_type;
 		drop_flags = sc_evt->flags;
-	} else {
+	}
+	else
+	{
 		evt_type = PPME_GENERIC_E;
 		drop_flags = UF_ALWAYS_DROP;
 	}
@@ -88,7 +87,7 @@ BPF_PROBE("raw_syscalls/", sys_enter, sys_enter_args)
 	struct sys_enter_args stack_ctx;
 
 	memcpy(stack_ctx.args, ctx->args, sizeof(ctx->args));
-	if (stash_args(stack_ctx.args))
+	if(stash_args(stack_ctx.args))
 		return 0;
 
 	call_filler(ctx, &stack_ctx, evt_type, settings, drop_flags);
@@ -104,28 +103,31 @@ BPF_PROBE("raw_syscalls/", sys_exit, sys_exit_args)
 	int drop_flags;
 	long id;
 
-	if (bpf_in_ia32_syscall())
+	if(bpf_in_ia32_syscall())
 		return 0;
 
 	id = bpf_syscall_get_nr(ctx);
-	if (id < 0 || id >= SYSCALL_TABLE_SIZE)
+	if(id < 0 || id >= SYSCALL_TABLE_SIZE)
 		return 0;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	sc_evt = get_syscall_info(id);
-	if (!sc_evt)
+	if(!sc_evt)
 		return 0;
 
-	if (sc_evt->flags & UF_USED) {
+	if(sc_evt->flags & UF_USED)
+	{
 		evt_type = sc_evt->exit_event_type;
 		drop_flags = sc_evt->flags;
-	} else {
+	}
+	else
+	{
 		evt_type = PPME_GENERIC_X;
 		drop_flags = UF_ALWAYS_DROP;
 	}
@@ -144,14 +146,14 @@ BPF_PROBE("sched/", sched_process_exit, sched_process_exit_args)
 	task = (struct task_struct *)bpf_get_current_task();
 
 	flags = _READ(task->flags);
-	if (flags & PF_KTHREAD)
+	if(flags & PF_KTHREAD)
 		return 0;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	evt_type = PPME_PROCEXIT_1_E;
@@ -166,10 +168,10 @@ BPF_PROBE("sched/", sched_switch, sched_switch_args)
 	enum ppm_event_type evt_type;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	evt_type = PPME_SCHEDSWITCH_6_E;
@@ -184,13 +186,13 @@ static __always_inline int bpf_page_fault(struct page_fault_args *ctx)
 	enum ppm_event_type evt_type;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->page_faults)
+	if(!settings->page_faults)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	evt_type = PPME_PAGE_FAULT_E;
@@ -215,10 +217,10 @@ BPF_PROBE("signal/", signal_deliver, signal_deliver_args)
 	enum ppm_event_type evt_type;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	evt_type = PPME_SIGNALDELIVER_E;
@@ -228,8 +230,7 @@ BPF_PROBE("signal/", signal_deliver, signal_deliver_args)
 }
 
 #ifndef BPF_SUPPORTS_RAW_TRACEPOINTS
-__bpf_section(TP_NAME "sched/sched_process_fork")
-int bpf_sched_process_fork(struct sched_process_fork_args *ctx)
+__bpf_section(TP_NAME "sched/sched_process_fork") int bpf_sched_process_fork(struct sched_process_fork_args *ctx)
 {
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
@@ -237,14 +238,14 @@ int bpf_sched_process_fork(struct sched_process_fork_args *ctx)
 	unsigned long *argsp;
 
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
 
 	argsp = __unstash_args(ctx->parent_pid);
-	if (!argsp)
+	if(!argsp)
 		return 0;
 
 	memcpy(&args, argsp, sizeof(args));
@@ -261,11 +262,11 @@ BPF_PROBE("net/", net_dev_start_xmit, net_dev_start_xmit_args)
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
-	if (!settings->capture_enabled)
+	if(!settings->capture_enabled)
 		return 0;
-	if (!settings->skb_capture)
+	if(!settings->skb_capture)
 		return 0;
 
 	struct sk_buff *skb;
@@ -275,7 +276,7 @@ BPF_PROBE("net/", net_dev_start_xmit, net_dev_start_xmit_args)
 	skb = ctx->skb;
 	bpf_probe_read((void *)dev_name, 16, ctx->dev->name);
 #else
-	skb = (struct sk_buff*) ctx->skbaddr;
+	skb = (struct sk_buff *)ctx->skbaddr;
 	TP_DATA_LOC_READ(dev_name, name, 16);
 #endif
 
@@ -329,11 +330,12 @@ BPF_KPROBE(tcp_drop)
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
 	evt_type = PPME_TCP_DROP_E;
-	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP)) {
+	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP))
+	{
 		bpf_tcp_drop_kprobe_e(ctx);
 	}
 
@@ -350,7 +352,7 @@ BPF_KPROBE(tcp_rcv_established)
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 	struct sock *sk = (struct sock *)_READ(ctx->di);
 	struct tcp_sock *ts = tcp_sk(sk);
@@ -369,27 +371,32 @@ BPF_KPROBE(tcp_rcv_established)
 	tp.sport = sport;
 	tp.family = family;
 	tp.pad = 1;
-	if(ntohs(sport) == 22 || ntohs(dport) == 22 || ntohs(sport) == 0 || ntohs(dport) == 0) {
+	if(ntohs(sport) == 22 || ntohs(dport) == 22 || ntohs(sport) == 0 || ntohs(dport) == 0)
+	{
 		return 0;
 	}
 
 	struct statistics *st = bpf_map_lookup_elem(&rtt_static_map, &tp);
-	if (!st) {
+	if(!st)
+	{
 		struct statistics new_st = {0};
 		new_st.last_time = bpf_ktime_get_ns();
 		int ret = bpf_map_update_elem(&rtt_static_map, &tp, &new_st, BPF_NOEXIST);
-	} else {
-		if (bpf_ktime_get_ns() - st->last_time > 5000000000) {
+	}
+	else
+	{
+		if(bpf_ktime_get_ns() - st->last_time > 5000000000)
+		{
 			st->last_time = bpf_ktime_get_ns();
 			evt_type = PPME_TCP_RCV_ESTABLISHED_E;
-			if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP)) {
+			if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP))
+			{
 				bpf_rtt_kprobe_e(ctx);
 			}
 		}
 	}
 	return 0;
 }
-
 
 BPF_KPROBE(tcp_close)
 {
@@ -401,7 +408,7 @@ BPF_KPROBE(tcp_close)
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
 	struct sock *sk = (struct sock *)_READ(ctx->di);
@@ -424,37 +431,54 @@ BPF_KPROBE(tcp_close)
 
 	int res = bpf_map_delete_elem(&rtt_static_map, &tp);
 
-	if(ntohs(sport)==22||ntohs(dport)==22||ntohs(sport)==0||ntohs(dport)==0){
+	if(ntohs(sport) == 22 || ntohs(dport) == 22 || ntohs(sport) == 0 || ntohs(dport) == 0)
+	{
 		return 0;
 	}
 	evt_type = PPME_TCP_CLOSE_E;
-	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP)){
+	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP))
+	{
 		bpf_rtt_kprobe_e(ctx);
 	}
 
 	return 0;
 }
 
-
 BPF_KPROBE(tcp_retransmit_skb)
 {
 	struct sysdig_bpf_settings *settings;
 	enum ppm_event_type evt_type;
 	settings = get_bpf_settings();
-	if (!settings)
+	if(!settings)
 		return 0;
 
 	evt_type = PPME_TCP_RETRANCESMIT_SKB_E;
-	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP)){
+	if(prepare_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP))
+	{
 		bpf_tcp_retransmit_skb_kprobe_e(ctx);
 	}
 
 	return 0;
 }
 
-
 char kernel_ver[] __bpf_section("kernel_version") = UTS_RELEASE;
 
 char __license[] __bpf_section("license") = "GPL";
 
 char probe_ver[] __bpf_section("probe_version") = PROBE_VERSION;
+
+// probe.c + 参数：ctx
+BPF_PROBE("sock/", inet_sock_set_state, sock_args)
+{
+	struct sysdig_bpf_settings *settings;
+	enum ppm_event_type evt_type;
+	settings = get_bpf_settings();
+	if(!settings)
+		return 0;
+	if(!settings->capture_enabled)
+		return 0;
+
+	evt_type = PPME_SOCK_INET_SOCK_SET_STATE_E;
+
+	call_filler(ctx, ctx, evt_type, settings, UF_NEVER_DROP);
+}

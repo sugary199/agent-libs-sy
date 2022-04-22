@@ -120,6 +120,7 @@ or GPL2.txt for full copies of the license.
     	FN(tcp_retransmit_skb_e)   	        \
 	FN(netif_receive_skb_e)			\
 	FN(net_dev_start_xmit_e)		\
+	FN(sock_inet_sock_set_state_e) \
 	FN(terminate_filler)
 
 #define FILLER_ENUM_FN(x) PPM_FILLER_##x,
